@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import localities from '../data/localities.json'; // Ensure this path is correct
+import localitiesData from '../data/localities.json'; // Ensure this path is correct
 
 interface Locality {
   cityName: string;
   localityName: string;
   localityId: string;
+  latitude: string; // Changed to string
+  longitude: string; // Changed to string
+  device_type: string;
 }
 
 const SearchBar: React.FC = () => {
@@ -15,6 +18,16 @@ const SearchBar: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
+    // Normalize localities data
+    const localities: Locality[] = localitiesData.map((loc: any) => ({
+      cityName: loc.cityName,
+      localityName: loc.localityName,
+      localityId: loc.localityId,
+      latitude: String(loc.latitude), // Ensure latitude is a string
+      longitude: String(loc.longitude), // Ensure longitude is a string
+      device_type: loc.device_type
+    }));
+
     if (query.length > 0) {
       // Filter suggestions based on the locality name
       const filteredSuggestions = localities.filter(locality =>
@@ -36,15 +49,15 @@ const SearchBar: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-white p-6 w-100">
+    <div className="flex flex-col items-center justify-center bg-white p-6 w-full">
       <div className="mb-6">
         <img
           src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"
           alt="Google"
-          className="w-100 h-24"
+          className="w-86 h-24 object-contain"
         />
       </div>
-      <div className="relative w-full max-w-3xl">
+      <div className="relative w-full max-w-xl">
         <div className="flex items-center border border-gray-300 rounded-full bg-white shadow-md">
           <i className="fas fa-search text-gray-500 mx-3"></i>
           <input

@@ -4,7 +4,9 @@ import axios from 'axios';
 
 const API_KEY = process.env.WEATHER_API_KEY; // Ensure you have this in your .env.local file
 
-
+interface ErrorResponse {
+  error: string; // Changed to string for consistency with error messages
+}
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { localityId } = req.query;
@@ -19,22 +21,26 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       {
         params: {
           locality_id: localityId,
-          // apiKey: API_KEY,
-
         },
         headers: {
-          "x-zomato-api-key": API_KEY
-        }
+          'x-zomato-api-key': API_KEY,
+        },
       }
     );
-    const data = await response.data;
+    const data = response.data;
 
-    console.log("data", data);
+    console.log('data', data);
 
-    res.status(200).json(data)
+    res.status(200).json(data);
   } catch (error) {
     console.error('Error fetching weather data:', error);
-    res.status(error.response?.status || 500).json({ error: error.message });
+
+    // Handle unknown error type and check if it's an Axios error
+    if (axios.isAxiosError(error)) {
+      res.status(error.response?.status || 500).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: 'An unexpected error occurred' });
+    }
   }
 };
 
